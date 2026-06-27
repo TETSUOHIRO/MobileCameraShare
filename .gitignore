@@ -27,6 +27,12 @@
 # Visual Studio cache directory
 .vs/
 
+# VS Code (Unity auto-generated)
+.vscode/
+
+# Editor / CLI temporary
+.utmp/
+
 # Gradle cache directory
 .gradle/
 
@@ -36,6 +42,7 @@ ExportedObj/
 *.csproj
 *.unityproj
 *.sln
+*.slnx
 *.suo
 *.tmp
 *.user
