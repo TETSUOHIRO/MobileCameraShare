@@ -52,6 +52,7 @@
 
 - 写真保存に必要な `NSPhotoLibraryAddUsageDescription` は、ビルド後処理(`NativeSharePostProcessBuild.cs`)で Info.plist に自動追加されます。文言を変えたい場合はそのスクリプトを編集してください。
 - カメラ用途の説明(`NSCameraUsageDescription`)は Player Settings の「Camera Usage Description」で設定してください。
+- iOS は `jp.yourname.unity.nativeshare` を実際には使いませんが、テンプレートの仮名のまま残っていると**ビルド時に警告(非ブロック)**でリネームを促します(`NativeSharePackageNameGuard`)。Android はビルドを停止します。
 
 ## ライセンス
 

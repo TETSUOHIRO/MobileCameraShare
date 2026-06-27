@@ -16,14 +16,21 @@ public class NativeSharePackageNameGuard : IPreprocessBuildWithReport
 
         if (platform == BuildTarget.Android)
         {
+            // Android はこの package 名が機能に直結するためビルドを停止する。
             CheckUnityAndroidPackageName();
-            CheckNativeSharePackageName();
+
+            if (ContainsDefaultNativeSharePackageName())
+            {
+                throw new BuildFailedException(BuildPackageNameMessage());
+            }
         }
         else if (platform == BuildTarget.iOS)
         {
-            // iOS 自体は jp.yourname を使わないが、テンプレートの仮名のまま
-            // 公開されないよう、リネームを促す。
-            CheckNativeSharePackageName();
+            // iOS 自体は jp.yourname を使わないので、止めずに警告でリネームを促す。
+            if (ContainsDefaultNativeSharePackageName())
+            {
+                Debug.LogWarning("[NativeShare] " + BuildPackageNameMessage());
+            }
         }
     }
 
@@ -61,7 +68,7 @@ public class NativeSharePackageNameGuard : IPreprocessBuildWithReport
         }
     }
 
-    private void CheckNativeSharePackageName()
+    private bool ContainsDefaultNativeSharePackageName()
     {
         string assetsPath = Application.dataPath;
 
@@ -80,30 +87,34 @@ public class NativeSharePackageNameGuard : IPreprocessBuildWithReport
                 continue;
             }
 
-            string text = File.ReadAllText(filePath);
-
-            if (text.Contains(DefaultNativeSharePackageName))
+            if (File.ReadAllText(filePath).Contains(DefaultNativeSharePackageName))
             {
-                throw new BuildFailedException(
-                    "NativeShare の Java package 名が初期値(テンプレートの仮名)のままです。\n\n" +
-                    "公開・配布の前に、次の仮パッケージ名を自分のものへ変更してください。\n\n" +
-                    "   " + DefaultNativeSharePackageName + "\n\n" +
-                    "   例:\n" +
-                    "   jp.piccolo.unity.nativeshare\n" +
-                    "   jp.piccolo.cameraapp.nativeshare\n\n" +
-                    "変更が必要な主な箇所:\n" +
-                    "・NativeShareBridge.cs の AndroidJavaClass の文字列\n" +
-                    "・NativeShareBridge.java の package 行\n" +
-                    "・NativeShareFileProvider.java の package 行\n" +
-                    "・AndroidManifest.xml の provider android:name\n" +
-                    "・Android 側のフォルダ名(jp/yourname/unity/nativeshare)\n\n" +
-                    "補足:\n" +
-                    "・この package 名は Android のネイティブ実装で使われます。\n" +
-                    "  iOS のビルド自体には必須ではありませんが、公開前のリネームを推奨します。\n" +
-                    "・アプリの Package Name(Player Settings)と、NativeShare の Java\n" +
-                    "  package 名は、同じである必要はありません。"
-                );
+                return true;
             }
         }
+
+        return false;
+    }
+
+    private string BuildPackageNameMessage()
+    {
+        return
+            "NativeShare の Java package 名が初期値(テンプレートの仮名)のままです。\n\n" +
+            "公開・配布の前に、次の仮パッケージ名を自分のものへ変更してください。\n\n" +
+            "   " + DefaultNativeSharePackageName + "\n\n" +
+            "   例:\n" +
+            "   jp.piccolo.unity.nativeshare\n" +
+            "   jp.piccolo.cameraapp.nativeshare\n\n" +
+            "変更が必要な主な箇所:\n" +
+            "・NativeShareBridge.cs の AndroidJavaClass の文字列\n" +
+            "・NativeShareBridge.java の package 行\n" +
+            "・NativeShareFileProvider.java の package 行\n" +
+            "・AndroidManifest.xml の provider android:name\n" +
+            "・Android 側のフォルダ名(jp/yourname/unity/nativeshare)\n\n" +
+            "補足:\n" +
+            "・この package 名は Android のネイティブ実装で使われます。\n" +
+            "  iOS のビルド自体には必須ではありませんが、公開前のリネームを推奨します。\n" +
+            "・アプリの Package Name(Player Settings)と、NativeShare の Java\n" +
+            "  package 名は、同じである必要はありません。";
     }
 }
