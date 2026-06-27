@@ -56,4 +56,5 @@
 
 ## ライセンス
 
-MIT License([LICENSE](LICENSE) を参照)。
+MIT License。正式版は英語の [LICENSE](LICENSE) です。
+日本語の参考訳を [LICENSE.ja](LICENSE.ja) に併記しています(法的効力は英語版が優先)。
