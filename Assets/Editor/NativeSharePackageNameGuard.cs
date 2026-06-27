@@ -12,13 +12,19 @@ public class NativeSharePackageNameGuard : IPreprocessBuildWithReport
 
     public void OnPreprocessBuild(BuildReport report)
     {
-        if (report.summary.platform != BuildTarget.Android)
-        {
-            return;
-        }
+        BuildTarget platform = report.summary.platform;
 
-        CheckUnityAndroidPackageName();
-        CheckNativeSharePackageName();
+        if (platform == BuildTarget.Android)
+        {
+            CheckUnityAndroidPackageName();
+            CheckNativeSharePackageName();
+        }
+        else if (platform == BuildTarget.iOS)
+        {
+            // iOS 自体は jp.yourname を使わないが、テンプレートの仮名のまま
+            // 公開されないよう、リネームを促す。
+            CheckNativeSharePackageName();
+        }
     }
 
     private void CheckUnityAndroidPackageName()
@@ -79,13 +85,8 @@ public class NativeSharePackageNameGuard : IPreprocessBuildWithReport
             if (text.Contains(DefaultNativeSharePackageName))
             {
                 throw new BuildFailedException(
-                    "NativeShare の Android Java package 名が初期値のままです。\n\n" +
-                    "Android向けにビルドする前に、次の2種類の Package Name を確認してください。\n\n" +
-                    "1. Unity Player Settings の Package Name\n" +
-                    "   Project Settings > Player > Android > Other Settings > Identification > Package Name\n" +
-                    "   例: jp.piccolo.cameraapp\n\n" +
-                    "2. NativeShare 側の Java package 名\n" +
-                    "   次の仮パッケージ名を、自分のものへ変更してください。\n\n" +
+                    "NativeShare の Java package 名が初期値(テンプレートの仮名)のままです。\n\n" +
+                    "公開・配布の前に、次の仮パッケージ名を自分のものへ変更してください。\n\n" +
                     "   " + DefaultNativeSharePackageName + "\n\n" +
                     "   例:\n" +
                     "   jp.piccolo.unity.nativeshare\n" +
@@ -95,10 +96,12 @@ public class NativeSharePackageNameGuard : IPreprocessBuildWithReport
                     "・NativeShareBridge.java の package 行\n" +
                     "・NativeShareFileProvider.java の package 行\n" +
                     "・AndroidManifest.xml の provider android:name\n" +
-                    "・Android 側のフォルダ名\n\n" +
+                    "・Android 側のフォルダ名(jp/yourname/unity/nativeshare)\n\n" +
                     "補足:\n" +
-                    "Unity Player Settings の Package Name と、NativeShare の Java package 名は、" +
-                    "同じである必要はありません。"
+                    "・この package 名は Android のネイティブ実装で使われます。\n" +
+                    "  iOS のビルド自体には必須ではありませんが、公開前のリネームを推奨します。\n" +
+                    "・アプリの Package Name(Player Settings)と、NativeShare の Java\n" +
+                    "  package 名は、同じである必要はありません。"
                 );
             }
         }
